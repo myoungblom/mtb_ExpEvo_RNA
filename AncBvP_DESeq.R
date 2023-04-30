@@ -59,8 +59,8 @@ anc.pca.plot.2 <- ggplot(anc.pca.data, aes(x=PC1,y=PC2,color=Strain,shape=Condit
         legend.text = element_text(size=12))
 anc.pca.plot.2
 
-ExportPlot(anc.pca.plot,"../NewFigures/Figure_3B",width=6,height=4)
-ExportPlot(anc.pca.plot.2,"../NewFigures/Supplement/Figure_S1A",width=6,height=4)
+ExportPlot(anc.pca.plot,"../NewFigures/Figure3B",width=6,height=4)
+ExportPlot(anc.pca.plot.2,"../NewFigures/Supplement/FigureS1A",width=6,height=4)
 
 # pca plot colored by wet weight (Figure S1B)
 ww.pca.plot <-  ggplot(anc.pca.data,aes(x=PC1,y=PC2))+ theme_minimal()+
@@ -72,16 +72,16 @@ ww.pca.plot <-  ggplot(anc.pca.data,aes(x=PC1,y=PC2))+ theme_minimal()+
         legend.text = element_text(size=12))
 ww.pca.plot
 
-ExportPlot(ww.pca.plot,"../NewFigures/Supplement/Figure_S1B",width=6,height=4)
+ExportPlot(ww.pca.plot,"../NewFigures/Supplement/FigureS1B",width=6,height=4)
 
 # results of biofilm vs planktonic comparison
 ABvP.result <- results(A.DESeq, alpha = 0.05,lfcThreshold = 0, contrast=c("Condition","Biofilm","Planktonic"))
-write.csv(x = ABvP.result,"DEFiles/ABvP/all_ABvP.csv",quote=F,row.names = F)
+write.csv(x = ABvP.result,"DEFiles/ABvP/all_ABvP.csv",quote=F)
 # number of significantly DE genes
 sum(ABvP.result$padj <0.05, na.rm=TRUE)
 # subset all genes for only significant results (Supplementary Data 1 - AllPopulations_ABvP)
 subset <- subset(ABvP.result,padj<0.05)
-write.csv(x = subset,"DEFiles/ABvP/all_ABvP_DE.csv",quote=F,row.names = F)
+write.csv(x = subset,"DEFiles/ABvP/all_ABvP_DE.csv",quote=F)
 
 # heatmap of all genes (Figure S2A)
 my_colors <- magma(n=4, end = 0.8, begin=0.1)
@@ -99,7 +99,7 @@ de.heatmap <- pheatmap(BvPCounts, color = colors, show_rownames = F, annotation_
                        cutree_cols = 1,treeheight_row = 0, annotation_colors = anno_colors,
                        kmeans_k = NA, border_color = "white", scale= "column", fontsize = 12)
 
-ExportPlot(de.heatmap,"../NewFigures/Supplement/Figure_S2A",width=8,height=10)
+ExportPlot(de.heatmap,"../NewFigures/Supplement/FigureS2A",width=8,height=10)
 
 #volcano plot (Figure 3C)
 voldata <- data.frame(ABvP.result)
@@ -118,7 +118,7 @@ vol <- ggplot(voldata,aes(x=log2FoldChange,y=-log10(padj))) + geom_point(aes(col
         legend.text = element_text(size=12)) + xlab("log2 fold change")
 vol
 
-ExportPlot(vol,"../NewFigures/Figure_3C",width=6,height=6)
+ExportPlot(vol,"../NewFigures/Figure3C",width=6,height=6)
 
 
 # separate DE analysis by individual strains (Supplementary Data 1 - ABvP for each strain)
@@ -200,8 +200,12 @@ tmp <- genes.2
 tmp[is.na(tmp)] <- 0
 tmp$count.up <- apply(tmp, 1, function(x) length(which(x=="2")))
 tmp$count.down <- apply(tmp, 1, function(x) length(which(x=="1")))
-n.up <- (nrow(tmp[tmp$count.up >= 5,])/total)*100; n.up
-n.down <- (nrow(tmp[tmp$count.down >= 5,])/total)*100; n.down
+n.up <- round((nrow(tmp[tmp$count.up >= 5,])/total)*100,digits=2)
+n.down <- round((nrow(tmp[tmp$count.down >= 5,])/total)*100,digits=2)
+
+print(paste("Number of upregulated genes shared by 5+ strains: ",n.up,"%"))
+print(paste("Number of downregulated genes shared by 5+ strains: ",n.down,"%"))
+
 
 # plotting matrix (Figure 3D)
 matrix.plot <- ggplot(genes.melt,aes(gene,strain)) + 
