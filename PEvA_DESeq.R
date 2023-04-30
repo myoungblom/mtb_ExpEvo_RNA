@@ -29,22 +29,22 @@ sampleTable <- data.frame(SampleName = sampleData$LibraryName,
                           SampleID = sampleData$SampleID)
 
 # subset to only biofilm samples
-sampleTable <- sampleTable[sampleTable$Condition == "Planktonic",]
+P.table <- sampleTable[sampleTable$Condition == "Planktonic",]
 
 # create sample table for DESeq2 input
-DESeq2Table <- DESeqDataSetFromHTSeqCount(sampleTable = sampleTable, directory = ".",
+P.DESeq <- DESeqDataSetFromHTSeqCount(sampleTable = P.table, directory = ".",
                                           design = ~ Genotype+Clade)
 
 # BF PCA with arrow
-rld <- rlogTransformation(DESeq2Table, blind=FALSE) # log transformation
-PCAdata <- DESeq2::plotPCA(rld, intgroup=c("Clade","Genotype"),returnData=T)
+P.rld <- rlogTransformation(P.DESeq, blind=FALSE) # log transformation
+PCAdata <- DESeq2::plotPCA(P.rld, intgroup=c("Clade","Genotype"),returnData=T)
 write.table(PCAdata,file="DEFiles/PEvA/P_EvA_PCAdata.tsv",sep="\t")
 
 # PCA data file edited to connect ancestral and evolved samples
 PCAdata2 <- read.table("DEFiles/PEvA/P_EvA_PCAdata_v2.txt",sep="\t",header=T)
-rv <- rowVars(assay(rld))
+rv <- rowVars(assay(P.rld))
 select <- order(rv, decreasing = TRUE)[seq_len(min(500,length(rv)))]
-pca <- prcomp(t(assay(rld)[select, ]))
+pca <- prcomp(t(assay(P.rld)[select, ]))
 percentVar <- pca$sdev^2/sum(pca$sdev^2)
 PC1var <- round(percentVar[1]*100)
 PC2var <- round(percentVar[2]*100)
@@ -59,8 +59,9 @@ PCAplot <- ggplot()+geom_point(data=PCAdata2,aes(x=PC1,y=PC2,color=Clade,shape=G
   ylim(-25,25)+theme_minimal()+xlab(paste0("PC1: ",PC1var,"%"))+ylab(paste0("PC2: ",PC2var,"%"))+
   scale_color_manual(name="Sub-lineage",labels=c("L4.9","L4.4"),breaks=c("L4.9","L4.4"),values=colors)+
   scale_shape_manual(name="Genotype",breaks=c("Ancestral","Evolved"), values=c(10,16))+
-  theme(legend.position = "top",axis.text=element_text(size=8),axis.title=element_text(size=10),
+  theme(legend.position = "top",axis.text=element_text(size=10),axis.title=element_text(size=12),
         legend.text=element_text(size=12))
 
 PCAplot
 
+ExportPlot(PCAplot,"../NewFigures/Figure5B",width=6,height=5)
