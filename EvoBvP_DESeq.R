@@ -25,34 +25,39 @@ sampleTable <- data.frame(SampleName = sampleData$LibraryName,
                           SampleID = sampleData$SampleID)
 
 # subset to only evolved samples
-sampleTable <- sampleTable[sampleTable$Genotype == "Evolved",]
+E.table <- sampleTable[sampleTable$Genotype == "Evolved",]
 
 # DE calculations by condition (biofilm vs plantkonic)
-DESeq2Table <- DESeqDataSetFromHTSeqCount(sampleTable = sampleTable, directory = ".", design = ~ Condition)
+E.DESeq <- DESeqDataSetFromHTSeqCount(sampleTable = E.table, directory = ".", design = ~ Condition)
 
 # filter out genes with 0 counts in all samples
-DESeq2Table <- DESeq2Table[rowSums(counts(DESeq2Table)) > 1,]
+E.DESeq <- E.DESeq[rowSums(counts(E.DESeq)) > 1,]
 
 # run DESeq analysis
-DESeq2Table <- DESeq(DESeq2Table)
-resultsNames(DESeq2Table)
+E.DESeq <- DESeq(E.DESeq)
+resultsNames(E.DESeq)
 
 # r-log transformation
-rld <- rlogTransformation(DESeq2Table, blind=FALSE)
+E.rld <- rlogTransformation(E.DESeq, blind=FALSE)
 
 # pca plot colored by growth condition (Figure 4B)
-evo.pca.plot <- DESeq2::plotPCA(rld, intgroup=c("Condition")) +
+evo.pca.plot <- DESeq2::plotPCA(E.rld, intgroup=c("Condition")) +
   theme_minimal()+ scale_color_manual(name="Growth Condition",values=c("#150E37FF","#D1426FFF"),
-                                      breaks=c("Biofilm","Planktonic"))
+                                      breaks=c("Biofilm","Planktonic")) +
+  theme(axis.text = element_text(size=10),axis.title = element_text(size=12), legend.text = element_text(size=12),
+        legend.title = element_text(size=12))
 evo.pca.plot
 
+ExportPlot(evo.pca.plot,"../NewFigures/Figure4B",width=6,height=4)
+
 # results of biofilm vs planktonic comparison
-result <- results(DESeq2Table, alpha = 0.05,lfcThreshold = 0, contrast=c("Condition","Biofilm","Planktonic"))
+EBvP.result <- results(E.DESeq, alpha = 0.05,lfcThreshold = 0, contrast=c("Condition","Biofilm","Planktonic"))
+write.csv(x = EBvP.result,"DEFiles/EBvP/all_EBvP.csv",quote=F)
 # number of significantly DE genes
-sum(result$padj <0.05, na.rm=TRUE)
+sum(EBvP.result$padj <0.05, na.rm=TRUE)
 # subset all genes for only significant results (Supplementary Data 2 - AllPopulations_EBvP)
-subset <- subset(result,padj<0.05)
-write.csv("../2023.02.28_newFigs/DEFiles/all_EBvP_DE.csv",x=subset)
+subset <- subset(EBvP.result,padj<0.05)
+write.csv("DEFiles/EBvP/all_EBvP_DE.csv",x=subset,quote=F)
 
 # heatmap of all genes (Figure S2B)
 my_colors <- magma(n=4, end = 0.8, begin=0.1)
@@ -60,9 +65,9 @@ condition <- my_colors[c(1,3)]
 genotype <- my_colors[c(2,4)]
 names(condition) <- c("Biofilm","Planktonic")
 anno_colors <- list(Condition=condition)
-BvPCounts <- assay(rld)[rownames(result),]
+BvPCounts <- assay(E.rld)[rownames(EBvP.result),]
 BvPCounts <- BvPCounts - rowMeans(BvPCounts)
-anno <- as.data.frame(colData(rld)[c("Condition")])
+anno <- as.data.frame(colData(E.rld)[c("Condition")])
 custom.palette <- c("red","white","blue")
 colors <- colorRampPalette(rev(custom.palette))(20)
 
@@ -70,10 +75,10 @@ de.heatmap <- pheatmap(BvPCounts, color = colors, show_rownames = F, annotation_
                        cutree_cols = 2,treeheight_row = 0, annotation_colors = anno_colors,
                        kmeans_k = NA, border_color = NA, scale= "column", fontsize = 12)
 
-de.heatmap
+ExportPlot(de.heatmap,"../NewFigures/FigureS2B",width=8,height=10)
 
 #volcano plot (Figure 4C)
-voldata <- data.frame(result)
+voldata <- data.frame(EBvP.result)
 voldata <- voldata %>% mutate(sig=case_when(padj < 0.05 & log2FoldChange > 0 ~ "Significant-Up",
                                             padj < 0.05 & log2FoldChange < 0 ~ "Significant-Down",
                                             padj > 0.05 ~ "Not significant"))
@@ -85,21 +90,23 @@ vol <- ggplot(voldata,aes(x=log2FoldChange,y=-log10(padj))) + geom_point(aes(col
   theme_minimal()+xlim(-11,11)+ylim(0,80)+
   scale_color_manual(name=NULL,values=my_colors,breaks=c("Not significant","Significant-Up","Significant-Down"),
                      labels=c("Not significant","Upregulated","Downregulated"))+
-  theme(legend.position = "top")
+  theme(legend.position = "top",axis.text = element_text(size=10),axis.title = element_text(size=12), legend.text = element_text(size=12),
+        legend.title = element_text(size=12))
 vol
-ExportPlot(vol,"../2023.02.28_newFigs/IndvFigures/all_EBvP_volanco",width=6,height=6)
+
+ExportPlot(vol,"../NewFigures/Figure4C",width=6,height=6)
 
 # separate by individual strains (Supplementary Data 2 - EBvP for each strain)
 strains <- c("31","49","55","72","345","540")
 
 for (strain in strains){
-  st <- sampleTable[sampleTable$Strain == strain,]
+  st <- E.table[E.table$Strain == strain,]
   t <- DESeqDataSetFromHTSeqCount(sampleTable = st, directory = ".", design = ~ Condition)
   t <- t[rowSums(counts(t)) > 1,]
   t <- DESeq(t)
   r <- results(t, alpha = 0.05, lfcThreshold = 0, contrast=c("Condition","Biofilm","Planktonic"))
   sub <- subset(r, padj < 0.05)
-  write.csv(sub,paste("../2023.02.28_newFigs/DEFiles/",paste(strain,"evoBvP",sep="_"),".csv",sep=""))
+  write.csv(sub,paste("DEFiles/EBvP/",paste(strain,"evoBvP",sep="_"),".csv",sep=""))
 }
 
 # reading individual data files
@@ -160,23 +167,19 @@ m <- as.matrix(m[,-1])
 # clustering matrix to determine order of genes on x-axis of geom_tile plot
 clust <- hclust(dist(t(m)))
 
+# count of all genes
+total <- length(unique(genes.melt$gene)); total
+
 # overlap between strains
-genes.2[is.na(genes.2)] <- 0
-total <- length(unique(genes.melt$gene))
-up.counts <- c()
-down.counts <- c()
-for(x in 1:nrow(genes.2)){
-  up.count <- sum(genes.2[x,][-1] == 2)
-  up.counts <- c(up.counts,up.count)
-  down.count <- sum(genes.2[x,][-1] == 1)
-  down.counts <- c(down.counts,down.count)
-}
+tmp <- genes.2
+tmp[is.na(tmp)] <- 0
+tmp$count.up <- apply(tmp, 1, function(x) length(which(x=="2")))
+tmp$count.down <- apply(tmp, 1, function(x) length(which(x=="1")))
+n.up <- round((nrow(tmp[tmp$count.up >= 5,])/total)*100,digits=2)
+n.down <- round((nrow(tmp[tmp$count.down >= 5,])/total)*100,digits=2)
 
-up.shared <- sum(up.counts >= 5)
-down.shared <- sum(down.counts >= 5)
-
-print(paste("Number of upregulated genes shared by 5+ strains: ",(up.shared/total)*100,"%"))
-print(paste("Number of downregulated genes shared by 5+ strains: ",(down.shared/total)*100,"%"))
+print(paste("Number of upregulated genes shared by 5+ strains: ",n.up,"%"))
+print(paste("Number of downregulated genes shared by 5+ strains: ",n.down,"%"))
 
 # plotting matrix (Figure 4D)
 matrix.plot <- ggplot(genes.melt,aes(gene,strain)) + 
@@ -190,53 +193,46 @@ matrix.plot <- ggplot(genes.melt,aes(gene,strain)) +
   ylab(NULL) + scale_y_discrete(labels=strain.names, breaks=strain.order)
 matrix.plot
 
-ExportPlot(matrix.plot,"../2023.02.28_newFigs/IndvFigures/EBvP_matrix",width=12,height=6)
+ExportPlot(matrix.plot,"../NewFigures/Figure4D",width=12,height=6)
 
 ################################################################
 #### FIGURE S3 -- treating MT31 outlier as a biofilm sample ####
 ################################################################
 
-# reformat metadata
-sampleTable <- data.frame(SampleName = sampleData$LibraryName,
-                          CountsFile = sampleData$CountsFile,
-                          Strain = factor(sampleData$Strain),
-                          Genotype = factor(sampleData$Genotype),
-                          Condition = factor(sampleData$Condition,levels = c("Planktonic","Biofilm")),
-                          WetWeight = as.numeric(sampleData$WetWeight),
-                          Clade = factor(sampleData$Clade),
-                          SampleID = sampleData$SampleID)
-
-# subset to only evolved samples
-sampleTable <- sampleTable[sampleTable$Genotype == "Evolved",]
+E31.table <- E.table
 
 # edit outlier sample condition
-sampleTable$Condition[sampleTable$SampleName == "3-E-P"] <- "Biofilm"
+E31.table$Condition[E31.table$SampleName == "3-E-P"] <- "Biofilm"
 
 # DE calculations by condition (biofilm vs plantkonic)
-DESeq2Table <- DESeqDataSetFromHTSeqCount(sampleTable = sampleTable, directory = ".", design = ~ Condition)
+E31.DESeq <- DESeqDataSetFromHTSeqCount(sampleTable = E31.table, directory = ".", design = ~ Condition)
 
 # filter out genes with 0 counts in all samples
-DESeq2Table <- DESeq2Table[rowSums(counts(DESeq2Table)) > 1,]
+E31.DESeq <- E31.DESeq[rowSums(counts(E31.DESeq)) > 1,]
 
 # run DESeq analysis
-DESeq2Table <- DESeq(DESeq2Table)
-resultsNames(DESeq2Table)
+E31.DESeq <- DESeq(E31.DESeq)
+resultsNames(E31.DESeq)
 
 # r-log transformation
-rld <- rlogTransformation(DESeq2Table, blind=FALSE)
+E31.rld <- rlogTransformation(E31.DESeq, blind=FALSE)
 
 # pca plot colored by growth condition (Figure S3A)
-evo.pca.plot <- DESeq2::plotPCA(rld, intgroup=c("Condition")) +
+evo.pca.plot <- DESeq2::plotPCA(E31.rld, intgroup=c("Condition")) +
   theme_minimal()+ scale_color_manual(name="Growth Condition",values=c("#150E37FF","#D1426FFF"),
-                                      breaks=c("Biofilm","Planktonic"))
+                                      breaks=c("Biofilm","Planktonic"))+
+  theme(axis.text = element_text(size=10),axis.title = element_text(size=12), legend.text = element_text(size=12),
+        legend.title = element_text(size=12))
 evo.pca.plot
 
+ExportPlot(evo.pca.plot,"../NewFigures/Supplement/FigureS3A",width=6,height=4)
+
 # results of biofilm vs planktonic comparison
-result <- results(DESeq2Table, alpha = 0.05,lfcThreshold = 0, contrast=c("Condition","Biofilm","Planktonic"))
+E31.result <- results(E31.DESeq, alpha = 0.05,lfcThreshold = 0, contrast=c("Condition","Biofilm","Planktonic"))
 # number of significantly DE genes
-sum(result$padj <0.05, na.rm=TRUE)
+sum(E31.result$padj <0.05, na.rm=TRUE)
 # subset all genes for only significant results
-subset <- subset(result,padj<0.05)
+E31.subset <- subset(E31.result,padj<0.05)
 
 # heatmap of all genes (Figure S3C)
 my_colors <- magma(n=4, end = 0.8, begin=0.1)
@@ -244,9 +240,9 @@ condition <- my_colors[c(1,3)]
 genotype <- my_colors[c(2,4)]
 names(condition) <- c("Biofilm","Planktonic")
 anno_colors <- list(Condition=condition)
-BvPCounts <- assay(rld)[rownames(result),]
+BvPCounts <- assay(E31.rld)[rownames(E31.result),]
 BvPCounts <- BvPCounts - rowMeans(BvPCounts)
-anno <- as.data.frame(colData(rld)[c("Condition")])
+anno <- as.data.frame(colData(E31.rld)[c("Condition")])
 custom.palette <- c("red","white","blue")
 colors <- colorRampPalette(rev(custom.palette))(20)
 
@@ -254,10 +250,10 @@ de.heatmap <- pheatmap(BvPCounts, color = colors, show_rownames = F, annotation_
                        cutree_cols = 2,treeheight_row = 0, annotation_colors = anno_colors,
                        kmeans_k = NA, border_color = NA, scale= "column", fontsize = 12)
 
-de.heatmap
+ExportPlot(de.heatmap,"../NewFigures/Supplement/FigureS3C",width=8,height=10)
 
 #volcano plot (Figure S3B)
-voldata <- data.frame(result)
+voldata <- data.frame(E31.result)
 voldata <- voldata %>% mutate(sig=case_when(padj < 0.05 & log2FoldChange > 0 ~ "Significant-Up",
                                             padj < 0.05 & log2FoldChange < 0 ~ "Significant-Down",
                                             padj > 0.05 ~ "Not significant"))
@@ -269,14 +265,17 @@ vol <- ggplot(voldata,aes(x=log2FoldChange,y=-log10(padj))) + geom_point(aes(col
   theme_minimal()+xlim(-11,11)+
   scale_color_manual(name=NULL,values=my_colors,breaks=c("Not significant","Significant-Up","Significant-Down"),
                      labels=c("Not significant","Upregulated","Downregulated"))+
-  theme(legend.position = "top")
+  theme(legend.position = "top",axis.text = element_text(size=10),axis.title = element_text(size=12), legend.text = element_text(size=12),
+        legend.title = element_text(size=12))
 vol
+
+ExportPlot(vol,"../NewFigures/Supplement/FigureS3B",width=6, height=6)
 
 # separate by individual strains
 strains <- c("31","49","55","72","345","540")
 
 for (strain in strains){
-  st <- sampleTable[sampleTable$Strain == strain,]
+  st <- E31.table[E31.table$Strain == strain,]
   t <- DESeqDataSetFromHTSeqCount(sampleTable = st, directory = ".", design = ~ Condition)
   t <- t[rowSums(counts(t)) > 1,]
   t <- DESeq(t)
@@ -343,23 +342,19 @@ m <- as.matrix(m[,-1])
 # clustering matrix to determine order of genes on x-axis of geom_tile plot
 clust <- hclust(dist(t(m)))
 
+# count of all genes
+total <- length(unique(genes.melt$gene)); total
+
 # overlap between strains
-genes.2[is.na(genes.2)] <- 0
-total <- length(unique(genes.melt$gene))
-up.counts <- c()
-down.counts <- c()
-for(x in 1:nrow(genes.2)){
-  up.count <- sum(genes.2[x,][-1] == 2)
-  up.counts <- c(up.counts,up.count)
-  down.count <- sum(genes.2[x,][-1] == 1)
-  down.counts <- c(down.counts,down.count)
-}
+tmp <- genes.2
+tmp[is.na(tmp)] <- 0
+tmp$count.up <- apply(tmp, 1, function(x) length(which(x=="2")))
+tmp$count.down <- apply(tmp, 1, function(x) length(which(x=="1")))
+n.up <- round((nrow(tmp[tmp$count.up >= 5,])/total)*100,digits=2)
+n.down <- round((nrow(tmp[tmp$count.down >= 5,])/total)*100,digits=2)
 
-up.shared <- sum(up.counts >= 5)
-down.shared <- sum(down.counts >= 5)
-
-print(paste("Number of upregulated genes shared by 5+ strains: ",(up.shared/total)*100,"%"))
-print(paste("Number of downregulated genes shared by 5+ strains: ",(down.shared/total)*100,"%"))
+print(paste("Number of upregulated genes shared by 5+ strains: ",n.up,"%"))
+print(paste("Number of downregulated genes shared by 5+ strains: ",n.down,"%"))
 
 # plotting matrix (Figure S3D)
 matrix.plot <- ggplot(genes.melt,aes(gene,strain)) + 
@@ -372,3 +367,5 @@ matrix.plot <- ggplot(genes.melt,aes(gene,strain)) +
         axis.title.x = element_text(size=12,face="bold"))+
   ylab(NULL) + scale_y_discrete(labels=strain.names, breaks=strain.order)
 matrix.plot
+
+ExportPlot(matrix.plot,"../NewFigures/Supplement/FigureS3D",width=12,height=6)
