@@ -28,41 +28,33 @@ sampleTable <- data.frame(SampleName = sampleData$LibraryName,
 
 #### SK31 ####
 dupgenes.31 <- read.delim("Metadata/31_DupGenes.txt",header=F)$V1
-sampleTable <- sampleTable[sampleTable$Strain == "31" & sampleTable$Condition == "Biofilm",]
+B31.table <- sampleTable[sampleTable$Strain == "31" & sampleTable$Condition == "Biofilm",]
 
-DESeq2Table <- DESeqDataSetFromHTSeqCount(sampleTable = sampleTable, directory = ".", design = ~ Genotype)
-DESeq2Table <- DESeq2Table[rowSums(counts(DESeq2Table)) > 1,]
-DESeq2Table <- DESeq(DESeq2Table)
+B31.DESeq <- DESeqDataSetFromHTSeqCount(sampleTable = B31.table, directory = ".", design = ~ Genotype)
+B31.DESeq <- B31.DESeq[rowSums(counts(B31.DESeq)) > 1,]
+B31.DESeq <- DESeq(B31.DESeq)
 
-r.31 <- results(DESeq2Table, alpha = 0.05, lfcThreshold = 0, contrast=c("Genotype","Evolved","Ancestral"))
+r.31 <- results(B31.DESeq, alpha = 0.05, lfcThreshold = 0, contrast=c("Genotype","Evolved","Ancestral"))
 
 r.31.dup <- subset(r.31, rownames(r.31) %in% dupgenes.31)
-r.31.non.dup <- subset(r.31, rownames(r.31) %in% setdiff(rownames(assay(DESeq2Table)),dupgenes.31))
+r.31.non.dup <- subset(r.31, rownames(r.31) %in% setdiff(rownames(assay(B31.DESeq)),dupgenes.31))
 
 write.csv(x = r.31.dup, file="DEFiles/Duplication/31_dupGenes_l2fc.csv")
 write.csv(x= r.31.non.dup, file="DEFiles/Duplication/31_nonDup_l2fc.csv")
 
 #### SK55 ####
 dupgenes.55 <- read.delim("Metadata/55_DupGenes.txt",header=F)$V1
-sampleTable <- data.frame(SampleName = sampleData$LibraryName,
-                          CountsFile = sampleData$CountsFile,
-                          Strain = factor(sampleData$Strain),
-                          Genotype = factor(sampleData$Genotype),
-                          Condition = factor(sampleData$Condition,levels = c("Planktonic","Biofilm")),
-                          WetWeight = as.numeric(sampleData$WetWeight),
-                          Clade = factor(sampleData$Clade),
-                          SampleID = sampleData$SampleID)
 
-sampleTable <- sampleTable[sampleTable$Strain == "55" & sampleTable$Condition == "Biofilm",]
+B55.table <- sampleTable[sampleTable$Strain == "55" & sampleTable$Condition == "Biofilm",]
 
-DESeq2Table <- DESeqDataSetFromHTSeqCount(sampleTable = sampleTable, directory = ".", design = ~ Genotype)
-DESeq2Table <- DESeq2Table[rowSums(counts(DESeq2Table)) > 1,]
-DESeq2Table <- DESeq(DESeq2Table)
+B55.DESeq <- DESeqDataSetFromHTSeqCount(sampleTable = B55.table, directory = ".", design = ~ Genotype)
+B55.DESeq <- B55.DESeq[rowSums(counts(B55.DESeq)) > 1,]
+B55.DESeq <- DESeq(B55.DESeq)
 
-r.55 <- results(DESeq2Table, alpha = 0.05, lfcThreshold = 0, contrast=c("Genotype","Evolved","Ancestral"))
+r.55 <- results(B55.DESeq, alpha = 0.05, lfcThreshold = 0, contrast=c("Genotype","Evolved","Ancestral"))
 
 r.55.dup <- subset(r.55, rownames(r.55) %in% dupgenes.55)
-r.55.non.dup <- subset(r.55, rownames(r.55) %in% setdiff(rownames(assay(DESeq2Table)),dupgenes.55))
+r.55.non.dup <- subset(r.55, rownames(r.55) %in% setdiff(rownames(assay(B55.DESeq)),dupgenes.55))
 
 write.csv(x = r.55.dup, file="DEFiles/Duplication/55_dupGenes_l2fc.csv")
 write.csv(x= r.55.non.dup, file="DEFiles/Duplication/55_nonDup_l2fc.csv")
@@ -91,7 +83,8 @@ box31 <- ggplot(allcounts[allcounts$strain=="31",],aes(x=type,y=l2fc)) + geom_hl
   geom_boxplot(alpha=1,aes(fill=type)) + theme_minimal()+
   theme(legend.position="none",axis.title = element_blank(),
         axis.text.y=element_text(size=10),axis.text.x=element_blank())+
-  scale_fill_manual(values=c("lightblue","darkblue"),breaks=c("all","duplication"))
+  scale_fill_manual(values=c("lightblue","darkblue"),breaks=c("all","duplication"))+
+  scale_y_continuous(limits=c(-5,5),breaks=c(-5,-2.5,0,2.5,5))
   
 box31
 
@@ -104,7 +97,8 @@ box55 <- ggplot(allcounts[allcounts$strain=="55",],aes(x=type,y=l2fc)) +geom_hli
   geom_boxplot(alpha=1,aes(fill=type)) + theme_minimal()+
   theme(legend.position="none",axis.title = element_blank(),
         axis.text.y=element_text(size=10),axis.text.x=element_blank())+
-  scale_fill_manual(values=c("lightblue","darkblue"),breaks=c("all","duplication"))
+  scale_fill_manual(values=c("lightblue","darkblue"),breaks=c("all","duplication"))+
+  scale_y_continuous(limits=c(-10,10),breaks=c(-10,-5,0,5,10))
 box55
 
 stat55 <- compare_means(l2fc ~ type, data = allcounts[allcounts$strain=="55",], p.adjust.method = "BH")
@@ -120,14 +114,15 @@ genes.pos <- genes.pos[-c(which(genes.pos$V1 %in% setdiff(genes.pos$V1,data31$ge
 data31$pos[match(genes.pos$V1,data31$gene)] <- genes.pos$V2
 
 plot31 <- ggplot(data31,aes(x=pos,y=l2fc)) + geom_point(aes(color=type))+
-  theme(axis.text.y = element_text(size=12),
+  theme(axis.text = element_text(size=16),
         axis.title=element_text(size=14),
-        legend.text = element_text(size=14),legend.title=element_blank())+
+        legend.text = element_text(size=16),legend.title=element_blank())+
   scale_color_manual(name=NULL,values=c("lightblue","navy"),breaks=c("all","duplication"),
                      labels=c("Not duplicated","Duplicated"))+
   geom_hline(yintercept=0,linetype="dashed")+
-  xlab("Genome position")+ylab("log2 fold change")+theme_minimal()+
-  scale_x_continuous(labels=comma)
+  xlab(NULL)+ylab("log2 fold change")+theme_minimal()+
+  scale_x_continuous(labels=comma)+
+  scale_y_continuous(limits=c(-5,5),breaks=c(-5,-2.5,0,2.5,5))
 
 plot31
 
@@ -138,15 +133,15 @@ data55$pos[match(genes.pos$V1,data55$gene)] <- genes.pos$V2
 
 
 plot55 <- ggplot(data55,aes(x=pos,y=l2fc)) + geom_point(aes(color=type))+
-  theme(axis.title=element_text(size=14),
-        axis.text.y = element_text(size=12),
-        legend.text = element_text(size=14),legend.title=element_blank())+
+  theme(axis.text = element_text(size=16),
+        axis.title=element_text(size=14),
+        legend.text = element_text(size=16),legend.title=element_blank())+
   scale_color_manual(name=NULL,values=c("lightblue","navy"),breaks=c("all","duplication"),
                      labels=c("Not duplicated","Duplicated"))+
   geom_hline(yintercept=0,linetype="dashed")+
   xlab("Genome position")+ylab("log2 fold change")+
   theme_minimal()+scale_x_continuous(labels=comma)+
-  scale_y_continuous(limits=c(-10,6),breaks=c(-10,-5,0,5))
+  scale_y_continuous(limits=c(-10,10),breaks=c(-10,-5,0,5,10))
 
 plot55
 
@@ -155,19 +150,11 @@ full.fig <- ggarrange(plot31,box31.stats,plot55,box55.stats,labels=c("MT31",NA,"
                       widths=c(3,1))
 full.fig
 
+ExportPlot(full.fig,"../NewFigures/Figure6C",width=16,height=8)
 
 # comparing duplicated to non-duplicated genes for other strains
 strains <- c("31","55","49","540","72","345")
 dupgenes <- read.delim("Metadata/dupgenes.txt",header=F)$V1
-
-sampleTable <- data.frame(SampleName = sampleData$LibraryName,
-                          CountsFile = sampleData$CountsFile,
-                          Strain = factor(sampleData$Strain),
-                          Genotype = factor(sampleData$Genotype),
-                          Condition = factor(sampleData$Condition,levels = c("Planktonic","Biofilm")),
-                          WetWeight = as.numeric(sampleData$WetWeight),
-                          Clade = factor(sampleData$Clade),
-                          SampleID = sampleData$SampleID)
 
 for (strain in strains){
   bst <- sampleTable[sampleTable$Strain == strain & sampleTable$Condition == "Biofilm",]
@@ -225,9 +212,11 @@ all.box <- ggplot(allcounts,aes(x=type,y=l2fc)) + geom_hline(yintercept=0,linety
   geom_boxplot(alpha=1,aes(fill=type)) + theme_bw()+
   facet_wrap(~strain,scales="free_y")+
   theme(legend.position="top",axis.title = element_blank(),
-        axis.text.y=element_text(size=10),axis.text.x=element_blank())+
+        axis.text.y=element_text(size=12),axis.text.x=element_blank())+
   scale_fill_manual(values=c("lightblue","darkblue"),breaks=c("all","duplication"))
 all.box
+
+ExportPlot(all.box,"../NewFigures/Supplement/FigureS4A",width=8,height=6)
 
 # making individual boxplots to get the p-values
 for (strain in strain.order){
@@ -278,9 +267,11 @@ all.box <- ggplot(allcounts,aes(x=type,y=l2fc)) + geom_hline(yintercept=0,linety
   geom_boxplot(alpha=1,aes(fill=type)) + theme_bw()+
   facet_wrap(~strain,scales="free_y")+
   theme(legend.position="top",axis.title = element_blank(),
-        axis.text.y=element_text(size=10),axis.text.x=element_blank())+
+        axis.text.y=element_text(size=12),axis.text.x=element_blank())+
   scale_fill_manual(values=c("lightblue","darkblue"),breaks=c("all","duplication"))
 all.box
+
+ExportPlot(all.box,"../NewFigures/Supplement/FigureS4B",width=8,height=6)
 
 # making individual boxplots to get the p-values
 for (strain in strain.order){
@@ -323,7 +314,7 @@ plot49
 plot49.zoom <- plot49 + ylim(-2.5,2.5) + scale_x_continuous(limits=c(3250000,4000000),breaks = c(3250000,3500000,3750000,4000000)) +theme(legend.position="top")
 plot49.zoom
 
-ExportPlot(plot49.zoom,"../2023.02.28_newFigs/IndvFigures/49_DupPlot",width=8,height=4)
+ExportPlot(plot49.zoom,"../NewFigures/Supplement/FigureS5A",width=8,height=4)
 
 # sliding window coverage for MT49 DNA and RNA seq (Figure S5B)
 r.data <- read.delim("Metadata/49_RNAseq_coverage.txt",header=T)
