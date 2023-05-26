@@ -1,4 +1,5 @@
 # mtb_ExpEvo_RNA
+Scripts and data for differential expression analyses from publication "Natural variation and adaptive constraints on the biofilm transcriptome of _Mycobacterium tuberculosis_"
 
 ### DEFiles
 Differential expression results for all comparisons and populations
