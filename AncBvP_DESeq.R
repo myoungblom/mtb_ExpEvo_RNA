@@ -6,13 +6,27 @@ require(pheatmap)
 require(viridis)
 require(reshape2)
 require(tidyr)
+require(ggpubr)
 
 #####
 # Analysis of M. tb RNA-seq data from ancestral populations, using DESeq2 and counts from HTSeq.
 # Requires: metadata file, HTSeq count files 
 #####
 
-setwd("~/Desktop/2023.04.26_RNAseq/mtb_ExpEvo_RNA/")
+#function to export plot
+ExportPlot <- function(gplot, filename, width=2, height=1.5) {
+  # Export plot in PDF and EPS.
+  # Notice that A4: width=11.69, height=8.27
+  ggsave(paste(filename, '.pdf', sep=""), gplot, width = width, height = height)
+  postscript(file = paste(filename, '.eps', sep=""), width = width, height = height, family = "sans")
+  print(gplot)
+  dev.off()
+  png(file = paste(filename, '_.png', sep=""), width = width * 100, height = height * 100)
+  print(gplot)
+  dev.off()
+}
+
+setwd("~/Desktop/2023.05.02_RNAseq/mtb_ExpEvo_RNA/")
 
 # read metadata file
 sampleData <- read.delim("Metadata/mtb_ExpEvo_RNA_metadata.txt", sep="", header = TRUE)
@@ -47,7 +61,8 @@ A.rld <- rlogTransformation(A.DESeq, blind=FALSE)
 anc.pca.plot <- DESeq2::plotPCA(A.rld, intgroup=c("Condition")) + 
   theme_minimal()+ scale_color_manual(name="Growth Condition",values=c("#150E37FF","#D1426FFF"),
                                       breaks=c("Biofilm","Planktonic")) +
-  theme(axis.text = element_text(size=10),axis.title = element_text(size=12), legend.text = element_text(size=12))
+  theme(axis.text = element_text(size=10),axis.title = element_text(size=12), 
+        legend.text = element_text(size=12),legend.position = "top")
 anc.pca.plot
 
 # pca plot colored by strain (Figure S1A)

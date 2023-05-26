@@ -13,7 +13,20 @@ require(Pigengene)
 # Requires: metadata file, HTSeq count files 
 #####
 
-setwd("~/Desktop/2023.04.26_RNAseq/mtb_ExpEvo_RNA/")
+#function to export plot
+ExportPlot <- function(gplot, filename, width=2, height=1.5) {
+  # Export plot in PDF and EPS.
+  # Notice that A4: width=11.69, height=8.27
+  ggsave(paste(filename, '.pdf', sep=""), gplot, width = width, height = height)
+  postscript(file = paste(filename, '.eps', sep=""), width = width, height = height, family = "sans")
+  print(gplot)
+  dev.off()
+  png(file = paste(filename, '_.png', sep=""), width = width * 100, height = height * 100)
+  print(gplot)
+  dev.off()
+}
+
+setwd("~/Desktop/2023.05.02_RNAseq/mtb_ExpEvo_RNA/")
 
 # lists of ncRNA and sORFs
 ncrna <- read.delim("Metadata/all_ncRNA.txt",header=F)$V1
@@ -108,15 +121,13 @@ de <- pheatmap.type(BvPCounts, annRow = anno.r,color = colors, show_rownames = F
               show_colnames = F, cutree_cols = 2, cutree_rows=2, annotation_colors = anno_colors,
               kmeans_k = NA, border_color = NA, scale= "column", fontsize = 12)
 
-
 # PCA of evolved and ancestral biofilm samples - ncRNA & sORF only (Figure 7C)
 
 # subset to only biofilm samples
 B.table <- sampleTable[sampleTable$Condition == "Biofilm",]
 
 # create sample table for DESeq2 input
-B.DESeq <- DESeqDataSetFromHTSeqCount(sampleTable = B.table, directory = ".",
-                                          design = ~ Genotype+Clade)
+B.DESeq <- DESeqDataSetFromHTSeqCount(sampleTable = B.table, directory = ".",design = ~ Genotype)
 
 # remove rows with 0 counts
 B.DESeq <- B.DESeq[rowSums(counts(B.DESeq)) > 1,]
@@ -162,8 +173,7 @@ ExportPlot(PCAplot,"../NewFigures/Figure7C",width=12,height=6)
 P.table <- sampleTable[sampleTable$Condition == "Planktonic",]
 
 # create sample table for DESeq2 input
-DESeq2Table <- DESeqDataSetFromHTSeqCount(sampleTable = P.table, directory = ".",
-                                          design = ~ Genotype+Clade)
+DESeq2Table <- DESeqDataSetFromHTSeqCount(sampleTable = P.table, directory = ".",design = ~ Genotype)
 
 # remove rows with 0 counts
 DESeq2Table <- DESeq2Table[rowSums(counts(DESeq2Table)) > 1,]

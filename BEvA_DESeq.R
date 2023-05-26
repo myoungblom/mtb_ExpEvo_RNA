@@ -11,6 +11,21 @@ require(reshape2)
 # Requires: metadata file, HTSeq count files 
 #####
 
+#function to export plot
+ExportPlot <- function(gplot, filename, width=2, height=1.5) {
+  # Export plot in PDF and EPS.
+  # Notice that A4: width=11.69, height=8.27
+  ggsave(paste(filename, '.pdf', sep=""), gplot, width = width, height = height)
+  postscript(file = paste(filename, '.eps', sep=""), width = width, height = height, family = "sans")
+  print(gplot)
+  dev.off()
+  png(file = paste(filename, '_.png', sep=""), width = width * 100, height = height * 100)
+  print(gplot)
+  dev.off()
+}
+
+setwd("~/Desktop/2023.05.02_RNAseq/mtb_ExpEvo_RNA/")
+
 # read metadata file
 sampleData <- read.delim("Metadata/mtb_ExpEvo_RNA_metadata.txt", sep="", header = TRUE)
 
@@ -28,24 +43,23 @@ sampleTable <- data.frame(SampleName = sampleData$LibraryName,
 B.table <- sampleTable[sampleTable$Condition == "Biofilm",]
 
 # create sample table for DESeq2 input
-B.DESeq <- DESeqDataSetFromHTSeqCount(sampleTable = B.table, directory = ".",
-                                          design = ~ Genotype+Clade)
+B.DESeq <- DESeqDataSetFromHTSeqCount(sampleTable = B.table, directory = ".",design = ~ Genotype)
 
 # remove rows with 0 counts
 B.DESeq <- B.DESeq[rowSums(counts(B.DESeq)) > 1,]
 B.DESeq <- DESeq(B.DESeq)
 resultsNames(B.DESeq)
 BEvA.result <- results(B.DESeq, alpha = 0.05, lfcThreshold = 0, contrast=c("Genotype","Evolved","Ancestral"))
-write.csv(x = BEvA.result,"DEFiles/BEvA/all_BEvA.csv",quote=F)
+#write.csv(x = BEvA.result,"DEFiles/BEvA/all_BEvA.csv",quote=F)
 
 sum(BEvA.result$padj <0.05, na.rm = TRUE)
 subSet <- subset(BEvA.result,padj < 0.05) # Supplementary Data 3 - AllPopulations_BFEvA
-write.csv(x = subSet,"DEFiles/BEvA/all_BEvA_DE.csv",quote=F)
+#write.csv(x = subSet,"DEFiles/BEvA/all_BEvA_DE.csv",quote=F)
 
 # BF PCA with arrow
 B.rld <- rlogTransformation(B.DESeq, blind=FALSE) # log transformation
 PCAdata <- DESeq2::plotPCA(B.rld, intgroup=c("Clade","Genotype"),returnData=T)
-write.table(PCAdata,file="DEFiles/BEvA/BF_EvA_PCAdata.tsv",sep="\t")
+#write.table(PCAdata,file="DEFiles/BEvA/BF_EvA_PCAdata.tsv",sep="\t")
 
 # PCA data file edited to connect ancestral and evolved samples
 PCAdata2 <- read.table("DEFiles/BEvA/BF_EvA_PCAdata_v2.txt",sep="\t",header=T)
@@ -157,6 +171,12 @@ count.plot <- ggplot(bar.data,(aes(x=lin,y=count))) + geom_col(aes(fill=lin,alph
 count.plot
 
 ExportPlot(count.plot,"../NewFigures/Figure5C",width=6,height=6)
+
+l4.9.up <- (nrow(subset(c4.9.u,log2FoldChange > 0))/nrow(c4.9.u))*100
+l4.4.up <- (nrow(subset(c4.4.u,log2FoldChange > 0))/nrow(c4.4.u))*100
+
+print(paste("% of unique L4.9 genes that are upregulated: ",l4.9.up,"%"))
+print(paste("% of unique L4.4 genes that are upregulated: ",l4.4.up,"%"))
 
 # separate by individual strains (Supplementary Data 3 - BFEvA for each strain)
 strains <- c("31","49","55","72","345","540")

@@ -15,6 +15,19 @@ require(scatterplot3d)
 # Requires: metadata file, HTSeq count files 
 #####
 
+#function to export plot
+ExportPlot <- function(gplot, filename, width=2, height=1.5) {
+  # Export plot in PDF and EPS.
+  # Notice that A4: width=11.69, height=8.27
+  ggsave(paste(filename, '.pdf', sep=""), gplot, width = width, height = height)
+  postscript(file = paste(filename, '.eps', sep=""), width = width, height = height, family = "sans")
+  print(gplot)
+  dev.off()
+  png(file = paste(filename, '_.png', sep=""), width = width * 100, height = height * 100)
+  print(gplot)
+  dev.off()
+}
+
 # read metadata file
 sampleData <- read.delim("Metadata/mtb_ExpEvo_RNA_metadata.txt", sep="", header = TRUE)
 
@@ -32,8 +45,7 @@ sampleTable <- data.frame(SampleName = sampleData$LibraryName,
 P.table <- sampleTable[sampleTable$Condition == "Planktonic",]
 
 # create sample table for DESeq2 input
-P.DESeq <- DESeqDataSetFromHTSeqCount(sampleTable = P.table, directory = ".",
-                                          design = ~ Genotype+Clade)
+P.DESeq <- DESeqDataSetFromHTSeqCount(sampleTable = P.table, directory = ".",design = ~ Genotype)
 
 # BF PCA with arrow
 P.rld <- rlogTransformation(P.DESeq, blind=FALSE) # log transformation

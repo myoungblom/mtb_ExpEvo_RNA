@@ -13,6 +13,21 @@ require(scales)
 # Requires: metadata file, HTSeq count files 
 #####
 
+#function to export plot
+ExportPlot <- function(gplot, filename, width=2, height=1.5) {
+  # Export plot in PDF and EPS.
+  # Notice that A4: width=11.69, height=8.27
+  ggsave(paste(filename, '.pdf', sep=""), gplot, width = width, height = height)
+  postscript(file = paste(filename, '.eps', sep=""), width = width, height = height, family = "sans")
+  print(gplot)
+  dev.off()
+  png(file = paste(filename, '_.png', sep=""), width = width * 100, height = height * 100)
+  print(gplot)
+  dev.off()
+}
+
+setwd("~/Desktop/2023.05.02_RNAseq/mtb_ExpEvo_RNA/")
+
 # read metadata file
 sampleData <- read.delim("Metadata/mtb_ExpEvo_RNA_metadata.txt", sep="", header = TRUE)
 
