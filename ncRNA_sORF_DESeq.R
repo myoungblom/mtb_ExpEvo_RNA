@@ -166,7 +166,7 @@ PCAplot
 
 ExportPlot(PCAplot,"../NewFigures/Figure7C",width=12,height=6)
 
-# PCA of evolved and ancestral planktonic samples - ncRNA & sORF only (Figure S6)
+# PCA of evolved and ancestral planktonic samples - ncRNA & sORF only (Figure S7)
 
 
 # subset to only biofilm samples

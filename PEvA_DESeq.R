@@ -77,3 +77,17 @@ PCAplot <- ggplot()+geom_point(data=PCAdata2,aes(x=PC1,y=PC2,color=Clade,shape=G
 PCAplot
 
 ExportPlot(PCAplot,"../NewFigures/Figure5B",width=6,height=5)
+
+# separate by individual strains
+strains <- c("31","49","55","72","345","540")
+
+for (strain in strains){
+  st <- P.table[P.table$Strain == strain,]
+  t <- DESeqDataSetFromHTSeqCount(sampleTable = st, directory = ".", design = ~ Genotype)
+  t <- t[rowSums(counts(t)) > 1,]
+  t <- DESeq(t)
+  r <- results(t, alpha = 0.05, lfcThreshold = 0, contrast=c("Genotype","Evolved","Ancestral"))
+  write.csv(r,paste("DEFiles/PEvA/",paste(strain,"PEvA","allGenes",sep="_"),".csv",sep=""),quote=F)
+  sub <- subset(r, padj < 0.05)
+  write.csv(sub,paste("DEFiles/PEvA/",paste(strain,"PEvA",sep="_"),".csv",sep=""),quote=F)
+}

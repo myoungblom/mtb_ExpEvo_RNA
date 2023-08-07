@@ -187,6 +187,7 @@ for (strain in strains){
   t <- t[rowSums(counts(t)) > 1,]
   t <- DESeq(t)
   r <- results(t, alpha = 0.05, lfcThreshold = 0, contrast=c("Genotype","Evolved","Ancestral"))
+  write.csv(r,paste("DEFiles/BEvA/",paste(strain,"BFEvA","allGenes",sep="_"),".csv",sep=""),quote=F)
   sub <- subset(r, padj < 0.05)
   write.csv(sub,paste("DEFiles/BEvA/",paste(strain,"BFEvA",sep="_"),".csv",sep=""),quote=F)
 }
@@ -220,3 +221,158 @@ box.stats <- plot + stat_pvalue_manual(stat, label="p.signif",label.size=4)
 box.stats
 
 ExportPlot(box.stats,"../NewFigures/Figure8B",width=6,height=6)
+
+# lpdA operon expression (Figure S6)
+operon.genes <- c("lpdA","glpD2","phoY1","Rv3300c","atsB","lpqC")
+b.540 <- read.csv("DEFiles/BEvA/540_BFEvA_allGenes.csv")
+p.540 <- read.csv("DEFiles/PEvA/540_PEvA_allGenes.csv")
+b.49 <- read.csv("DEFiles/BEvA/49_BFEvA_allGenes.csv")
+p.49 <- read.csv("DEFiles/PEvA/49_PEvA_allGenes.csv")
+
+b.345 <- read.csv("DEFiles/BEvA/345_BFEvA_allGenes.csv")
+p.345 <- read.csv("DEFiles/PEvA/345_PEvA_allGenes.csv")
+b.72 <- read.csv("DEFiles/BEvA/72_BFEvA_allGenes.csv")
+p.72 <- read.csv("DEFiles/PEvA/72_PEvA_allGenes.csv")
+
+b.31 <- read.csv("DEFiles/BEvA/31_BFEvA_allGenes.csv")
+p.31 <- read.csv("DEFiles/PEvA/31_PEvA_allGenes.csv")
+b.55 <- read.csv("DEFiles/BEvA/55_BFEvA_allGenes.csv")
+p.55 <- read.csv("DEFiles/PEvA/55_PEvA_allGenes.csv")
+
+all.lpda <- rbind(data.frame(gene=b.540$X,l2fc=b.540$log2FoldChange,pvalue=b.540$padj,condition="Biofilm",strain="MT540"),
+                  data.frame(gene=p.540$X,l2fc=p.540$log2FoldChange,pvalue=p.540$padj,condition="Planktonic",strain="MT540"),
+                  data.frame(gene=b.49$X,l2fc=b.49$log2FoldChange,pvalue=b.49$padj,condition="Biofilm",strain="MT49"),
+                  data.frame(gene=p.49$X,l2fc=p.49$log2FoldChange,pvalue=p.49$padj,condition="Planktonic",strain="MT49"),
+                  data.frame(gene=b.345$X,l2fc=b.345$log2FoldChange,pvalue=b.345$padj,condition="Biofilm",strain="MT345"),
+                  data.frame(gene=p.345$X,l2fc=p.345$log2FoldChange,pvalue=p.345$padj,condition="Planktonic",strain="MT345"),
+                  data.frame(gene=b.72$X,l2fc=b.72$log2FoldChange,pvalue=b.72$padj,condition="Biofilm",strain="MT72"),
+                  data.frame(gene=p.72$X,l2fc=p.72$log2FoldChange,pvalue=p.72$padj,condition="Planktonic",strain="MT72"),
+                  data.frame(gene=b.31$X,l2fc=b.31$log2FoldChange,pvalue=b.31$padj,condition="Biofilm",strain="MT31"),
+                  data.frame(gene=p.31$X,l2fc=p.31$log2FoldChange,pvalue=p.31$padj,condition="Planktonic",strain="MT31"),
+                  data.frame(gene=b.55$X,l2fc=b.55$log2FoldChange,pvalue=b.55$padj,condition="Biofilm",strain="MT55"),
+                  data.frame(gene=p.55$X,l2fc=p.55$log2FoldChange,pvalue=p.55$padj,condition="Planktonic",strain="MT55"))
+
+all.lpda <- all.lpda[all.lpda$gene %in% operon.genes,]
+all.lpda <- all.lpda %>% mutate(sig=case_when(pvalue < 0.05 ~ "Yes",
+                                              pvalue >= 0.05 ~ "No" ))
+all.lpda$sc <- paste(all.lpda$strain,all.lpda$condition,sep="-")
+all.lpda$sc <- factor(all.lpda$sc,
+             levels=c("MT31-Planktonic","MT31-Biofilm",
+                      "MT345-Planktonic","MT345-Biofilm",
+                      "MT49-Planktonic","MT49-Biofilm",
+                      "MT55-Planktonic","MT55-Biofilm",
+                      "MT72-Planktonic","MT72-Biofilm",
+                      "MT540-Planktonic","MT540-Biofilm"
+                      ))
+
+strain.col <- c("#FFCCFF","#CC99FF","lightblue","dodgerblue","#FFCC99","#FF6666")
+strain.order <- c("MT49","MT540","MT31","MT55","MT72","MT345")
+
+lpda.l2fc <- ggplot(all.lpda[all.lpda$condition == "Planktonic",],aes(x=gene,y=l2fc)) + geom_point(aes(color=sig,fill=strain),size=4,pch=21,stroke=1)+
+  facet_wrap(~sc)+ scale_x_discrete(limits=operon.genes)+
+  theme_bw()+geom_hline(yintercept=0,linetype="dashed",size=0.25)+
+  theme(axis.text.x=element_text(angle=30))+
+  scale_fill_manual(name="Strain",values=strain.col,breaks=strain.order,labels=strain.order)+
+  scale_color_manual(name="Significant?",values=c("black","white"),breaks=c("y","n"))+
+  ylab("Log2 Fold Change")+xlab("Gene")
+
+lpda.l2fc
+
+ExportPlot(lpda.l2fc,"DE_lpdA/Figures/allStrains_lpdAoperon_planktonic",width=8,height=6)
+
+lpda.l2fc <- ggplot(all.operon.counts[all.operon.counts$condition == "biofilm",],aes(x=gene,y=l2fc)) + geom_point(aes(color=sig,fill=strain),size=4,pch=21,stroke=1)+
+  facet_wrap(~sc)+ scale_x_discrete(limits=operon.genes)+
+  theme_bw()+geom_hline(yintercept=0,linetype="dashed",size=0.25)+
+  theme(axis.text.x=element_text(angle=30))+
+  scale_fill_manual(name="Strain",values=strain.col,breaks=strain.order,labels=strain.order)+
+  scale_color_manual(name="Significant?",values=c("black","white"),breaks=c("y","n"))+
+  ylab("Log2 Fold Change")+xlab("Gene")
+
+lpda.l2fc
+
+ExportPlot(lpda.l2fc,"DE_lpdA/Figures/allStrains_lpdAoperon_biofilm",width=8,height=6)
+
+#strain.col <- c("#CC99FF","#FFCCFF")
+strain.col <- c("lightblue","dodgerblue","#FF6666","#FFCC99","#FFCCFF","#CC99FF")
+
+lpda.l2fc <- ggplot(all.lpda,aes(x=gene,y=l2fc)) + geom_point(aes(color=sig,fill=strain),size=4,pch=21,stroke=1)+
+  facet_wrap(~sc)+ scale_x_discrete(limits=operon.genes)+
+  theme_bw()+geom_hline(yintercept=0,linetype="dashed",size=0.25)+
+  theme(axis.text.x=element_text(angle=30))+
+  scale_fill_manual(name="strain",values=strain.col)+
+  scale_color_manual(name="significant?",values=c("black","white"),breaks=c("Yes","No"))+
+  ylab("log2 fold change") + xlab("Gene")+
+  scale_y_continuous(limits=c(-2,4),breaks=c(-1,-2,0,1,2,3,4))
+lpda.l2fc
+
+ExportPlot(lpda.l2fc,"../NewFigures/Supplement/FigureS6",width=6,height=6)
+
+# all strains
+operon.genes <- c("lpdA","glpD2","phoY1","Rv3300c","atsB","lpqC")
+b.540 <- read.csv("DEFiles/BEvA/540_BFEvA_allGenes.csv")
+p.540 <- read.csv("DEFiles/PEvA/540_PEvA_allGenes.csv")
+b.49 <- read.csv("DEFiles/BEvA/49_BFEvA_allGenes.csv")
+p.49 <- read.csv("DEFiles/PEvA/49_PEvA_allGenes.csv")
+
+b.345 <- read.csv("DEFiles/BEvA/345_BFEvA_allGenes.csv")
+p.345 <- read.csv("DEFiles/PEvA/345_PEvA_allGenes.csv")
+b.72 <- read.csv("DEFiles/BEvA/72_BFEvA_allGenes.csv")
+p.72 <- read.csv("DEFiles/PEvA/72_PEvA_allGenes.csv")
+
+b.31 <- read.csv("DEFiles/BEvA/31_BFEvA_allGenes.csv")
+p.31 <- read.csv("DEFiles/PEvA/31_PEvA_allGenes.csv")
+b.55 <- read.csv("DEFiles/BEvA/55_BFEvA_allGenes.csv")
+p.55 <- read.csv("DEFiles/PEvA/55_PEvA_allGenes.csv")
+
+all.lpda <- rbind(data.frame(gene=b.540$X,l2fc=b.540$log2FoldChange,pvalue=b.540$padj,condition="Biofilm",strain="MT540"),
+                  data.frame(gene=p.540$X,l2fc=p.540$log2FoldChange,pvalue=p.540$padj,condition="Planktonic",strain="MT540"),
+                  data.frame(gene=b.49$X,l2fc=b.49$log2FoldChange,pvalue=b.49$padj,condition="Biofilm",strain="MT49"),
+                  data.frame(gene=p.49$X,l2fc=p.49$log2FoldChange,pvalue=p.49$padj,condition="Planktonic",strain="MT49"),
+                  data.frame(gene=b.345$X,l2fc=b.345$log2FoldChange,pvalue=b.345$padj,condition="Biofilm",strain="MT345"),
+                  data.frame(gene=p.345$X,l2fc=p.345$log2FoldChange,pvalue=p.345$padj,condition="Planktonic",strain="MT345"),
+                  data.frame(gene=b.72$X,l2fc=b.72$log2FoldChange,pvalue=b.72$padj,condition="Biofilm",strain="MT72"),
+                  data.frame(gene=p.72$X,l2fc=p.72$log2FoldChange,pvalue=p.72$padj,condition="Planktonic",strain="MT72"),
+                  data.frame(gene=b.31$X,l2fc=b.31$log2FoldChange,pvalue=b.31$padj,condition="Biofilm",strain="MT31"),
+                  data.frame(gene=p.31$X,l2fc=p.31$log2FoldChange,pvalue=p.31$padj,condition="Planktonic",strain="MT31"),
+                  data.frame(gene=b.55$X,l2fc=b.55$log2FoldChange,pvalue=b.55$padj,condition="Biofilm",strain="MT55"),
+                  data.frame(gene=p.55$X,l2fc=p.55$log2FoldChange,pvalue=p.55$padj,condition="Planktonic",strain="MT55"))
+
+all.lpda <- all.lpda[all.lpda$gene %in% operon.genes,]
+all.lpda <- all.lpda %>% mutate(sig=case_when(pvalue < 0.05 ~ "Yes",
+                                              pvalue >= 0.05 ~ "No" ))
+all.lpda$sc <- paste(all.lpda$strain,all.lpda$condition,sep="-")
+all.lpda$sc <- factor(all.lpda$sc,
+                      levels=c("MT31-Planktonic","MT31-Biofilm",
+                               "MT345-Planktonic","MT345-Biofilm",
+                               "MT49-Planktonic","MT49-Biofilm",
+                               "MT55-Planktonic","MT55-Biofilm",
+                               "MT72-Planktonic","MT72-Biofilm",
+                               "MT540-Planktonic","MT540-Biofilm"
+                      ))
+
+strain.col <- c("#FFCCFF","#CC99FF","lightblue","dodgerblue","#FFCC99","#FF6666")
+strain.order <- c("MT49","MT540","MT31","MT55","MT72","MT345")
+
+lpda.l2fc <- ggplot(all.lpda[all.lpda$condition == "Planktonic",],aes(x=gene,y=l2fc)) + geom_point(aes(color=sig,fill=strain),size=4,pch=21,stroke=1)+
+  facet_wrap(~sc)+ scale_x_discrete(limits=operon.genes)+
+  theme_bw()+geom_hline(yintercept=0,linetype="dashed",size=0.25)+
+  theme(axis.text.x=element_text(angle=30))+
+  scale_fill_manual(name="Strain",values=strain.col,breaks=strain.order,labels=strain.order)+
+  scale_color_manual(name="Significant?",values=c("black","white"),breaks=c("y","n"))+
+  ylab("Log2 Fold Change")+xlab("Gene")
+
+lpda.l2fc
+
+ExportPlot(lpda.l2fc,"DE_lpdA/Figures/allStrains_lpdAoperon_planktonic",width=8,height=6)
+
+lpda.l2fc <- ggplot(all.operon.counts[all.operon.counts$condition == "biofilm",],aes(x=gene,y=l2fc)) + geom_point(aes(color=sig,fill=strain),size=4,pch=21,stroke=1)+
+  facet_wrap(~sc)+ scale_x_discrete(limits=operon.genes)+
+  theme_bw()+geom_hline(yintercept=0,linetype="dashed",size=0.25)+
+  theme(axis.text.x=element_text(angle=30))+
+  scale_fill_manual(name="Strain",values=strain.col,breaks=strain.order,labels=strain.order)+
+  scale_color_manual(name="Significant?",values=c("black","white"),breaks=c("y","n"))+
+  ylab("Log2 Fold Change")+xlab("Gene")
+
+lpda.l2fc
+
+ExportPlot(lpda.l2fc,"DE_lpdA/Figures/allStrains_lpdAoperon_biofilm",width=8,height=6)
