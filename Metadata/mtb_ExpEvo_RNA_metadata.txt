@@ -1,48 +1,48 @@
-SampleID	Strain	Clade	Genotype	Condition	LibraryName	WetWeight	CountsFile
-31-A-P	31	L4.9	Ancestral	Planktonic	1-A-P	0.68105	HTSeqCounts/1-A-P_HTSeqCounts.txt
-49-A-P	49	L4.4	Ancestral	Planktonic	10-A-P	0.84915	HTSeqCounts/10-A-P_HTSeqCounts.txt
-49-E-P	49	L4.4	Evolved	Planktonic	11-E-P	1.70245	HTSeqCounts/11-E-P_HTSeqCounts.txt
-49-E-P	49	L4.4	Evolved	Planktonic	12-E-P	1.70245	HTSeqCounts/12-E-P_HTSeqCounts.txt
-49-A-B	49	L4.4	Ancestral	Biofilm	13-A-B	0.84915	HTSeqCounts/13-A-B_HTSeqCounts.txt
-49-A-B	49	L4.4	Ancestral	Biofilm	14-A-B	0.84915	HTSeqCounts/14-A-B_HTSeqCounts.txt
-49-E-B	49	L4.4	Evolved	Biofilm	15-E-B	1.70245	HTSeqCounts/15-E-B_HTSeqCounts.txt
-49-E-B	49	L4.4	Evolved	Biofilm	16-E-B	1.70245	HTSeqCounts/16-E-B_HTSeqCounts.txt
-55-A-P	55	L4.9	Ancestral	Planktonic	17-A-P	0.63995	HTSeqCounts/17-A-P_HTSeqCounts.txt
-55-A-P	55	L4.9	Ancestral	Planktonic	18-A-P	0.63995	HTSeqCounts/18-A-P_HTSeqCounts.txt
-55-E-P	55	L4.9	Evolved	Planktonic	19-E-P	4.1406	HTSeqCounts/19-E-P_HTSeqCounts.txt
-31-A-P	31	L4.9	Ancestral	Planktonic	2-A-P	0.68105	HTSeqCounts/2-A-P_HTSeqCounts.txt
-55-E-P	55	L4.9	Evolved	Planktonic	20-E-P	4.1406	HTSeqCounts/20-E-P_HTSeqCounts.txt
-55-A-B	55	L4.9	Ancestral	Biofilm	21-A-B	0.63995	HTSeqCounts/21-A-B_HTSeqCounts.txt
-55-A-B	55	L4.9	Ancestral	Biofilm	22-A-B	0.63995	HTSeqCounts/22-A-B_HTSeqCounts.txt
-55-E-B	55	L4.9	Evolved	Biofilm	23-E-B	4.1406	HTSeqCounts/23-E-B_HTSeqCounts.txt
-55-E-B	55	L4.9	Evolved	Biofilm	24-E-B	4.1406	HTSeqCounts/24-E-B_HTSeqCounts.txt
-72-A-P	72	L4.4	Ancestral	Planktonic	25-A-P	0.6184	HTSeqCounts/25-A-P_HTSeqCounts.txt
-72-A-P	72	L4.4	Ancestral	Planktonic	26-A-P	0.6184	HTSeqCounts/26-A-P_HTSeqCounts.txt
-72-E-P	72	L4.4	Evolved	Planktonic	27-E-P	1.9599	HTSeqCounts/27-E-P_HTSeqCounts.txt
-72-E-P	72	L4.4	Evolved	Planktonic	28-E-P	1.9599	HTSeqCounts/28-E-P_HTSeqCounts.txt
-72-A-B	72	L4.4	Ancestral	Biofilm	29-A-B	0.6184	HTSeqCounts/29-A-B_HTSeqCounts.txt
-31-E-P	31	L4.9	Evolved	Planktonic	3-E-P	1.823666667	HTSeqCounts/3-E-P_HTSeqCounts.txt
-72-A-B	72	L4.4	Ancestral	Biofilm	30-A-B	0.6184	HTSeqCounts/30-A-B_HTSeqCounts.txt
-72-E-B	72	L4.4	Evolved	Biofilm	31-E-B	1.9599	HTSeqCounts/31-E-B_HTSeqCounts.txt
-72-E-B	72	L4.4	Evolved	Biofilm	32-E-B	1.9599	HTSeqCounts/32-E-B_HTSeqCounts.txt
-345-A-P	345	L4.4	Ancestral	Planktonic	33-A-P	1.561533333	HTSeqCounts/33-A-P_HTSeqCounts.txt
-345-A-P	345	L4.4	Ancestral	Planktonic	34-A-P	1.561533333	HTSeqCounts/34-A-P_HTSeqCounts.txt
-345-E-P	345	L4.4	Evolved	Planktonic	35-E-P	3.889133333	HTSeqCounts/35-E-P_HTSeqCounts.txt
-345-E-P	345	L4.4	Evolved	Planktonic	36-E-P	3.889133333	HTSeqCounts/36-E-P_HTSeqCounts.txt
-345-A-B	345	L4.4	Ancestral	Biofilm	37-A-B	1.561533333	HTSeqCounts/37-A-B_HTSeqCounts.txt
-345-A-B	345	L4.4	Ancestral	Biofilm	38-A-B	1.561533333	HTSeqCounts/38-A-B_HTSeqCounts.txt
-345-E-B	345	L4.4	Evolved	Biofilm	39-E-B	3.889133333	HTSeqCounts/39-E-B_HTSeqCounts.txt
-31-E-P	31	L4.9	Evolved	Planktonic	4-E-P	1.823666667	HTSeqCounts/4-E-P_HTSeqCounts.txt
-345-E-B	345	L4.4	Evolved	Biofilm	40-E-B	3.889133333	HTSeqCounts/40-E-B_HTSeqCounts.txt
-540-A-P	540	L4.4	Ancestral	Planktonic	41-A-P	0.7599	HTSeqCounts/41-A-P_HTSeqCounts.txt
-540-A-P	540	L4.4	Ancestral	Planktonic	42-A-P	0.7599	HTSeqCounts/42-A-P_HTSeqCounts.txt
-540-E-P	540	L4.4	Evolved	Planktonic	43-E-P	1.899166667	HTSeqCounts/43-E-P_HTSeqCounts.txt
-540-E-P	540	L4.4	Evolved	Planktonic	44-E-P	1.899166667	HTSeqCounts/44-E-P_HTSeqCounts.txt
-540-A-B	540	L4.4	Ancestral	Biofilm	45-A-B	0.7599	HTSeqCounts/45-A-B_HTSeqCounts.txt
-540-A-B	540	L4.4	Ancestral	Biofilm	46-A-B	0.7599	HTSeqCounts/46-A-B_HTSeqCounts.txt
-540-E-B	540	L4.4	Evolved	Biofilm	47-E-B	1.899166667	HTSeqCounts/47-E-B_HTSeqCounts.txt
-540-E-B	540	L4.4	Evolved	Biofilm	48-E-B	1.899166667	HTSeqCounts/48-E-B_HTSeqCounts.txt
-31-A-B	31	L4.9	Ancestral	Biofilm	5-A-B	0.68105	HTSeqCounts/5-A-B_HTSeqCounts.txt
-31-A-B	31	L4.9	Ancestral	Biofilm	6-A-B	0.68105	HTSeqCounts/6-A-B_HTSeqCounts.txt
-31-E-B	31	L4.9	Evolved	Biofilm	7-E-B	1.823666667	HTSeqCounts/7-E-B_HTSeqCounts.txt
-31-E-B	31	L4.9	Evolved	Biofilm	8-E-B	1.823666667	HTSeqCounts/8-E-B_HTSeqCounts.txt
+SampleID	Strain	Clade	Genotype	Condition	LibraryName	WetWeight	LibraryPrepBatch	Resequenced	ReadCount	CountsFile
+31-A-P	31	L4.9	Ancestral	Planktonic	1-A-P	0.68105	1	Y	73	HTSeqCounts/1-A-P_HTSeqCounts.txt
+31-A-P	31	L4.9	Ancestral	Planktonic	2-A-P	0.68105	1	N	55	HTSeqCounts/2-A-P_HTSeqCounts.txt
+31-E-P	31	L4.9	Evolved	Planktonic	3-E-P	1.823666667	1	Y	62	HTSeqCounts/3-E-P_HTSeqCounts.txt
+31-E-P	31	L4.9	Evolved	Planktonic	4-E-P	1.823666667	1	N	53	HTSeqCounts/4-E-P_HTSeqCounts.txt
+31-A-B	31	L4.9	Ancestral	Biofilm	5-A-B	0.68105	3	N	51	HTSeqCounts/5-A-B_HTSeqCounts.txt
+31-A-B	31	L4.9	Ancestral	Biofilm	6-A-B	0.68105	3	Y	63	HTSeqCounts/6-A-B_HTSeqCounts.txt
+31-E-B	31	L4.9	Evolved	Biofilm	7-E-B	1.823666667	1	N	79	HTSeqCounts/7-E-B_HTSeqCounts.txt
+31-E-B	31	L4.9	Evolved	Biofilm	8-E-B	1.823666667	1	N	99	HTSeqCounts/8-E-B_HTSeqCounts.txt
+49-A-P	49	L4.4	Ancestral	Planktonic	10-A-P	0.84915	1	Y	69	HTSeqCounts/10-A-P_HTSeqCounts.txt
+49-E-P	49	L4.4	Evolved	Planktonic	11-E-P	1.70245	1	Y	76	HTSeqCounts/11-E-P_HTSeqCounts.txt
+49-E-P	49	L4.4	Evolved	Planktonic	12-E-P	1.70245	1	Y	69	HTSeqCounts/12-E-P_HTSeqCounts.txt
+49-A-B	49	L4.4	Ancestral	Biofilm	13-A-B	0.84915	3	N	52	HTSeqCounts/13-A-B_HTSeqCounts.txt
+49-A-B	49	L4.4	Ancestral	Biofilm	14-A-B	0.84915	1	N	117	HTSeqCounts/14-A-B_HTSeqCounts.txt
+49-E-B	49	L4.4	Evolved	Biofilm	15-E-B	1.70245	1	Y	70	HTSeqCounts/15-E-B_HTSeqCounts.txt
+49-E-B	49	L4.4	Evolved	Biofilm	16-E-B	1.70245	3	N	83	HTSeqCounts/16-E-B_HTSeqCounts.txt
+55-A-P	55	L4.9	Ancestral	Planktonic	17-A-P	0.63995	3	Y	69	HTSeqCounts/17-A-P_HTSeqCounts.txt
+55-A-P	55	L4.9	Ancestral	Planktonic	18-A-P	0.63995	3	N	54	HTSeqCounts/18-A-P_HTSeqCounts.txt
+55-E-P	55	L4.9	Evolved	Planktonic	19-E-P	4.1406	3	N	64	HTSeqCounts/19-E-P_HTSeqCounts.txt
+55-E-P	55	L4.9	Evolved	Planktonic	20-E-P	4.1406	4	Y	75	HTSeqCounts/20-E-P_HTSeqCounts.txt
+55-A-B	55	L4.9	Ancestral	Biofilm	21-A-B	0.63995	4	Y	73	HTSeqCounts/21-A-B_HTSeqCounts.txt
+55-A-B	55	L4.9	Ancestral	Biofilm	22-A-B	0.63995	2	N	82	HTSeqCounts/22-A-B_HTSeqCounts.txt
+55-E-B	55	L4.9	Evolved	Biofilm	23-E-B	4.1406	4	N	75	HTSeqCounts/23-E-B_HTSeqCounts.txt
+55-E-B	55	L4.9	Evolved	Biofilm	24-E-B	4.1406	4	Y	77	HTSeqCounts/24-E-B_HTSeqCounts.txt
+72-A-P	72	L4.4	Ancestral	Planktonic	25-A-P	0.6184	4	Y	43	HTSeqCounts/25-A-P_HTSeqCounts.txt
+72-A-P	72	L4.4	Ancestral	Planktonic	26-A-P	0.6184	2	N	62	HTSeqCounts/26-A-P_HTSeqCounts.txt
+72-E-P	72	L4.4	Evolved	Planktonic	27-E-P	1.9599	4	Y	70	HTSeqCounts/27-E-P_HTSeqCounts.txt
+72-E-P	72	L4.4	Evolved	Planktonic	28-E-P	1.9599	4	N	55	HTSeqCounts/28-E-P_HTSeqCounts.txt
+72-A-B	72	L4.4	Ancestral	Biofilm	29-A-B	0.6184	4	N	52	HTSeqCounts/29-A-B_HTSeqCounts.txt
+72-A-B	72	L4.4	Ancestral	Biofilm	30-A-B	0.6184	2	Y	63	HTSeqCounts/30-A-B_HTSeqCounts.txt
+72-E-B	72	L4.4	Evolved	Biofilm	31-E-B	1.9599	2	Y	64	HTSeqCounts/31-E-B_HTSeqCounts.txt
+72-E-B	72	L4.4	Evolved	Biofilm	32-E-B	1.9599	4	Y	54	HTSeqCounts/32-E-B_HTSeqCounts.txt
+345-A-P	345	L4.4	Ancestral	Planktonic	33-A-P	1.561533333	4	Y	71	HTSeqCounts/33-A-P_HTSeqCounts.txt
+345-A-P	345	L4.4	Ancestral	Planktonic	34-A-P	1.561533333	4	Y	72	HTSeqCounts/34-A-P_HTSeqCounts.txt
+345-E-P	345	L4.4	Evolved	Planktonic	35-E-P	3.889133333	5	Y	73	HTSeqCounts/35-E-P_HTSeqCounts.txt
+345-E-P	345	L4.4	Evolved	Planktonic	36-E-P	3.889133333	5	N	51	HTSeqCounts/36-E-P_HTSeqCounts.txt
+345-A-B	345	L4.4	Ancestral	Biofilm	37-A-B	1.561533333	5	N	87	HTSeqCounts/37-A-B_HTSeqCounts.txt
+345-A-B	345	L4.4	Ancestral	Biofilm	38-A-B	1.561533333	5	N	87	HTSeqCounts/38-A-B_HTSeqCounts.txt
+345-E-B	345	L4.4	Evolved	Biofilm	39-E-B	3.889133333	5	N	68	HTSeqCounts/39-E-B_HTSeqCounts.txt
+345-E-B	345	L4.4	Evolved	Biofilm	40-E-B	3.889133333	5	N	90	HTSeqCounts/40-E-B_HTSeqCounts.txt
+540-A-P	540	L4.4	Ancestral	Planktonic	41-A-P	0.7599	5	Y	69	HTSeqCounts/41-A-P_HTSeqCounts.txt
+540-A-P	540	L4.4	Ancestral	Planktonic	42-A-P	0.7599	5	Y	71	HTSeqCounts/42-A-P_HTSeqCounts.txt
+540-E-P	540	L4.4	Evolved	Planktonic	43-E-P	1.899166667	2	N	51	HTSeqCounts/43-E-P_HTSeqCounts.txt
+540-E-P	540	L4.4	Evolved	Planktonic	44-E-P	1.899166667	2	Y	72	HTSeqCounts/44-E-P_HTSeqCounts.txt
+540-A-B	540	L4.4	Ancestral	Biofilm	45-A-B	0.7599	2	Y	76	HTSeqCounts/45-A-B_HTSeqCounts.txt
+540-A-B	540	L4.4	Ancestral	Biofilm	46-A-B	0.7599	5	N	61	HTSeqCounts/46-A-B_HTSeqCounts.txt
+540-E-B	540	L4.4	Evolved	Biofilm	47-E-B	1.899166667	5	N	63	HTSeqCounts/47-E-B_HTSeqCounts.txt
+540-E-B	540	L4.4	Evolved	Biofilm	48-E-B	1.899166667	2	N	80	HTSeqCounts/48-E-B_HTSeqCounts.txt

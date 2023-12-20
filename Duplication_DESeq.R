@@ -26,8 +26,6 @@ ExportPlot <- function(gplot, filename, width=2, height=1.5) {
   dev.off()
 }
 
-setwd("~/Desktop/2023.05.02_RNAseq/mtb_ExpEvo_RNA/")
-
 # read metadata file
 sampleData <- read.delim("Metadata/mtb_ExpEvo_RNA_metadata.txt", sep="", header = TRUE)
 
@@ -54,8 +52,8 @@ r.31 <- results(B31.DESeq, alpha = 0.05, lfcThreshold = 0, contrast=c("Genotype"
 r.31.dup <- subset(r.31, rownames(r.31) %in% dupgenes.31)
 r.31.non.dup <- subset(r.31, rownames(r.31) %in% setdiff(rownames(assay(B31.DESeq)),dupgenes.31))
 
-write.csv(x = r.31.dup, file="DEFiles/Duplication/31_dupGenes_l2fc.csv")
-write.csv(x= r.31.non.dup, file="DEFiles/Duplication/31_nonDup_l2fc.csv")
+#write.csv(x = r.31.dup, file="DEFiles/Duplication/31_dupGenes_l2fc.csv")
+#write.csv(x= r.31.non.dup, file="DEFiles/Duplication/31_nonDup_l2fc.csv")
 
 #### SK55 ####
 dupgenes.55 <- read.delim("Metadata/55_DupGenes.txt",header=F)$V1
@@ -71,8 +69,8 @@ r.55 <- results(B55.DESeq, alpha = 0.05, lfcThreshold = 0, contrast=c("Genotype"
 r.55.dup <- subset(r.55, rownames(r.55) %in% dupgenes.55)
 r.55.non.dup <- subset(r.55, rownames(r.55) %in% setdiff(rownames(assay(B55.DESeq)),dupgenes.55))
 
-write.csv(x = r.55.dup, file="DEFiles/Duplication/55_dupGenes_l2fc.csv")
-write.csv(x= r.55.non.dup, file="DEFiles/Duplication/55_nonDup_l2fc.csv")
+#write.csv(x = r.55.dup, file="DEFiles/Duplication/55_dupGenes_l2fc.csv")
+#write.csv(x= r.55.non.dup, file="DEFiles/Duplication/55_nonDup_l2fc.csv")
 
 #### plot l2fc ####
 
@@ -165,8 +163,6 @@ full.fig <- ggarrange(plot31,box31.stats,plot55,box55.stats,labels=c("MT31",NA,"
                       widths=c(3,1))
 full.fig
 
-ExportPlot(full.fig,"../NewFigures/Figure6C",width=16,height=8)
-
 # comparing duplicated to non-duplicated genes for other strains
 strains <- c("31","55","49","540","72","345")
 dupgenes <- read.delim("Metadata/dupgenes.txt",header=F)$V1
@@ -192,7 +188,7 @@ for (strain in strains){
   write.csv(x=pnondup,file=paste("DEFiles/Duplication/",strain,"_PnonDup.csv",sep=""))
 }
 
-# plot l2fc values from biofilm samples (Figure S4A)
+# plot l2fc values from biofilm samples (Figure S9A)
 
 dupcounts.31 <- read.csv("DEFiles/Duplication/31_BdupGenes.csv",header=T)
 counts.31 <- read.csv("DEFiles/Duplication/31_BnonDup.csv",header=T)
@@ -247,7 +243,7 @@ for (strain in strain.order){
   assign(paste("box",strain,sep="."), box + stat_pvalue_manual(stat, label="p.adj",label.size=5))
 }
 
-# plot l2fc values from planktonic samples (Figure S4B)
+# plot l2fc values from planktonic samples (Figure S9B)
 
 dupcounts.31 <- read.csv("DEFiles/Duplication/31_PdupGenes.csv",header=T)
 counts.31 <- read.csv("DEFiles/Duplication/31_PnonDup.csv",header=T)
@@ -286,8 +282,6 @@ all.box <- ggplot(allcounts,aes(x=type,y=l2fc)) + geom_hline(yintercept=0,linety
   scale_fill_manual(values=c("lightblue","darkblue"),breaks=c("all","duplication"))
 all.box
 
-ExportPlot(all.box,"../NewFigures/Supplement/FigureS4B",width=8,height=6)
-
 # making individual boxplots to get the p-values
 for (strain in strain.order){
   box <- ggplot(allcounts[allcounts$strain == strain,],aes(x=type,y=l2fc)) + geom_hline(yintercept=0,linetype="dashed")+
@@ -302,7 +296,7 @@ for (strain in strain.order){
   assign(paste("box",strain,sep="."), box + stat_pvalue_manual(stat, label="p.adj",label.size=5))
 }
 
-# MT49 sliding window
+# MT49 sliding window coverage (Figure S10A)
 genes.pos <- read.delim("Metadata/genepos.txt",header=F)
 
 dupcounts.49 <- read.csv("DEFiles/Duplication/49_BdupGenes.csv",header=T)
@@ -329,9 +323,7 @@ plot49
 plot49.zoom <- plot49 + ylim(-2.5,2.5) + scale_x_continuous(limits=c(3250000,4000000),breaks = c(3250000,3500000,3750000,4000000)) +theme(legend.position="top")
 plot49.zoom
 
-ExportPlot(plot49.zoom,"../NewFigures/Supplement/FigureS5A",width=8,height=4)
-
-# sliding window coverage for MT49 DNA and RNA seq (Figure S5B)
+# sliding window coverage for MT49 DNA and RNA seq (Figure S10B)
 r.data <- read.delim("Metadata/49_RNAseq_coverage.txt",header=T)
 d.data <- read.delim("Metadata/49_DNAseq_coverage.txt")[,c(1,2,4)]
 

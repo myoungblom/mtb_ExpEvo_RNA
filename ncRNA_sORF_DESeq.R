@@ -26,8 +26,6 @@ ExportPlot <- function(gplot, filename, width=2, height=1.5) {
   dev.off()
 }
 
-setwd("~/Desktop/2023.05.02_RNAseq/mtb_ExpEvo_RNA/")
-
 # lists of ncRNA and sORFs
 ncrna <- read.delim("Metadata/all_ncRNA.txt",header=F)$V1
 sorfs <- read.delim("Metadata/all_sORFs.txt",header=F)$V1
@@ -65,8 +63,8 @@ nrow(ncRNA.sORF.DESeq)
 ncRNA.sORF.DESeq <- DESeq(ncRNA.sORF.DESeq)
 resultsNames(ncRNA.sORF.DESeq)
 
-# r-log transformation
-ncRNA.sORF.rld <- rlogTransformation(ncRNA.sORF.DESeq, blind=FALSE)
+# vst transformation
+ncRNA.sORF.vst <- vst(ncRNA.sORF.DESeq, blind=FALSE, nsub=739)
 
 # results of biofilm vs planktonic comparison
 ncRNA.sORF.result <- data.frame(results(ncRNA.sORF.DESeq, alpha = 0.05,lfcThreshold = 0, 
@@ -97,12 +95,9 @@ vol <- ggplot(voldata,aes(x=log2FoldChange,y=-log10(padj))) + geom_point(aes(col
 
 vol
 
-ExportPlot(vol,"../NewFigures/Figure7A",width=6,height=8)
-
-
 # heatmap of sDE ncRNA and sORFs (Figure 7B)
 ncRNA.sORF.result.sig <- ncRNA.sORF.result[ncRNA.sORF.result$padj < 0.05,]
-BvPCounts <- assay(ncRNA.sORF.rld)[ncRNA.sORF.result.sig$gene,]
+BvPCounts <- assay(ncRNA.sORF.vst)[ncRNA.sORF.result.sig$gene,]
 BvPCounts <- BvPCounts - rowMeans(BvPCounts)
 
 my_colors <- magma(n=4, end = 0.8, begin=0.1)
@@ -113,7 +108,7 @@ colors <- colorRampPalette(rev(custom.palette))(20)
 names(condition) <- c("Biofilm","Planktonic")
 names(type) <- c("ncRNA","sORF")
 anno_colors <- list(Condition=condition,Type=type)
-anno.c <- as.data.frame(colData(ncRNA.sORF.rld)[c("Condition")])
+anno.c <- as.data.frame(colData(ncRNA.sORF.vst)[c("Condition")])
 anno.r <- data.frame("Type"= ncRNA.sORF.result.sig$type)
 rownames(anno.r) <- ncRNA.sORF.result.sig$gene
 
@@ -136,16 +131,16 @@ B.DESeq <- B.DESeq[rowSums(counts(B.DESeq)) > 1,]
 B.DESeq <- B.DESeq[rownames(B.DESeq) %in% ncrna_sorfs$feature,]
 
 # log transformation
-rld <- rlogTransformation(B.DESeq, blind=FALSE)
+vst <- vst(B.DESeq, blind=FALSE,nsub=739)
 
-PCAdata <- DESeq2::plotPCA(rld, intgroup=c("Clade","Genotype"),returnData=T)
-write.table(PCAdata,file="DEFiles/BEvA/BF_EvA_PCAdata_ncRNAsORFs.tsv",sep="\t")
+PCAdata <- DESeq2::plotPCA(vst, intgroup=c("Clade","Genotype"),returnData=T)
+#write.table(PCAdata,file="DEFiles/BEvA/BF_EvA_PCAdata_ncRNAsORFs.tsv",sep="\t")
 
 # PCA data file edited to connect ancestral and evolved samples
 PCAdata2 <- read.table("DEFiles/BEvA/BF_EvA_PCAdata_ncRNAsORFs_v2.txt",sep="\t",header=T)
-rv <- rowVars(assay(rld))
+rv <- rowVars(assay(vst))
 select <- order(rv, decreasing = TRUE)[seq_len(min(500,length(rv)))]
-pca <- prcomp(t(assay(rld)[select, ]))
+pca <- prcomp(t(assay(vst)[select, ]))
 percentVar <- pca$sdev^2/sum(pca$sdev^2)
 PC1var <- round(percentVar[1]*100)
 PC2var <- round(percentVar[2]*100)
@@ -155,7 +150,7 @@ arrows <- arrow(ends="last", length=unit(0.1,"inches"),angle=20,type="closed")
 
 PCAplot <- ggplot()+geom_point(data=PCAdata2,aes(x=PC1,y=PC2,color=Clade,shape=Genotype),size=4,alpha=0.9)+
   geom_curve(aes(x=PC1,y=PC2,xend=PC12,yend=PC22,color=Clade),alpha=0.9,data=PCAdata2,
-             arrow=arrows,curvature = 0.3,na.rm = T,show.legend = F)+
+             arrow=arrows,curvature = 0.1,na.rm = T,show.legend = F,linetype="dashed")+
   ylim(-25,25)+theme_minimal()+xlab(paste0("PC1: ",PC1var,"%"))+ylab(paste0("PC2: ",PC2var,"%"))+
   scale_color_manual(name="Sub-lineage",labels=c("L4.9","L4.4"),breaks=c("L4.9","L4.4"),values=colors)+
   scale_shape_manual(name="Genotype",breaks=c("Ancestral","Evolved"), values=c(10,16))+
@@ -164,12 +159,9 @@ PCAplot <- ggplot()+geom_point(data=PCAdata2,aes(x=PC1,y=PC2,color=Clade,shape=G
 
 PCAplot
 
-ExportPlot(PCAplot,"../NewFigures/Figure7C",width=12,height=6)
+# PCA of evolved and ancestral planktonic samples - ncRNA & sORF only (Figure S12)
 
-# PCA of evolved and ancestral planktonic samples - ncRNA & sORF only (Figure S7)
-
-
-# subset to only biofilm samples
+# subset to only planktonic samples
 P.table <- sampleTable[sampleTable$Condition == "Planktonic",]
 
 # create sample table for DESeq2 input
@@ -182,16 +174,17 @@ DESeq2Table <- DESeq2Table[rowSums(counts(DESeq2Table)) > 1,]
 DESeq2Table <- DESeq2Table[rownames(DESeq2Table) %in% ncrna_sorfs$feature,]
 
 # log transformation
-rld <- rlogTransformation(DESeq2Table, blind=FALSE)
+sum( rowMeans( counts(DESeq2Table, normalized=F)) > 5 )
+vst <- varianceStabilizingTransformation(DESeq2Table, blind=FALSE)
 
-PCAdata <- DESeq2::plotPCA(rld, intgroup=c("Clade","Genotype"),returnData=T)
-write.table(PCAdata,file="DEFiles/PEvA/P_EvA_PCAdata_ncRNAsORFs.tsv",sep="\t")
+PCAdata <- DESeq2::plotPCA(vst, intgroup=c("Clade","Genotype"),returnData=T)
+#write.table(PCAdata,file="DEFiles/PEvA/P_EvA_PCAdata_ncRNAsORFs.tsv",sep="\t")
 
 # PCA data file edited to connect ancestral and evolved samples
 PCAdata2 <- read.table("DEFiles/PEvA/P_EvA_PCAdata_ncRNAsORFs_v2.txt",sep="\t",header=T)
-rv <- rowVars(assay(rld))
+rv <- rowVars(assay(vst))
 select <- order(rv, decreasing = TRUE)[seq_len(min(500,length(rv)))]
-pca <- prcomp(t(assay(rld)[select, ]))
+pca <- prcomp(t(assay(vst)[select, ]))
 percentVar <- pca$sdev^2/sum(pca$sdev^2)
 PC1var <- round(percentVar[1]*100)
 PC2var <- round(percentVar[2]*100)
@@ -201,7 +194,7 @@ arrows <- arrow(ends="last", length=unit(0.1,"inches"),angle=20,type="closed")
 
 PCAplot <- ggplot()+geom_point(data=PCAdata2,aes(x=PC1,y=PC2,color=Clade,shape=Genotype),size=4,alpha=0.9)+
   geom_curve(aes(x=PC1,y=PC2,xend=PC12,yend=PC22,color=Clade),alpha=0.9,data=PCAdata2,
-             arrow=arrows,curvature = 0.3,na.rm = T,show.legend = F)+
+             arrow=arrows,curvature = 0.1,na.rm = T,show.legend = F,linetype="dashed")+
   ylim(-25,25)+theme_minimal()+xlab(paste0("PC1: ",PC1var,"%"))+ylab(paste0("PC2: ",PC2var,"%"))+
   scale_color_manual(name="Sub-lineage",labels=c("L4.9","L4.4"),breaks=c("L4.9","L4.4"),values=colors)+
   scale_shape_manual(name="Genotype",breaks=c("Ancestral","Evolved"), values=c(10,16))+
@@ -209,6 +202,3 @@ PCAplot <- ggplot()+geom_point(data=PCAdata2,aes(x=PC1,y=PC2,color=Clade,shape=G
         legend.text=element_text(size=12))
 
 PCAplot
-
-ExportPlot(PCAplot,"../NewFigures/Supplement/FigureS6",width=12,height=6)
-
