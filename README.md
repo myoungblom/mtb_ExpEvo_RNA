@@ -15,10 +15,14 @@ Anc BvP - comparison of biofilm to planktonic gene expression in ancestral popul
 
 B EvA - comparison of evolved to ancestral gene expression in biofilm populations
 
+Data QC – batch effects, biological replicate concordance, etc
+
 Duplication - analysis of differential expression within large duplication
 
 Evo BvP - comparison of biofilm to planktonic gene expression in evolved populations
 
 P EvA - comparison of evolved to ancestral gene expression in planktonic populations
+
+Sautons & Stationary – analysis of effects of media and growth phase on the transcriptome
 
 ncRNA sORF - analysis of differential expression of ncRNAs and sORFs
